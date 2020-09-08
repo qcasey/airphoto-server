@@ -78,7 +78,7 @@ func (asset *Asset) parseFile(obj *[]byte) {
 		log.Error().Msg(err.Error())
 		return
 	}
-	asset.LocalPath = filepath.Join(server.AssetsPath, fmt.Sprintf("%s/%s/%s", asset.AlbumGUID, asset.GUID, asset.Filename))
+	asset.LocalPath = filepath.Join(server.AssetsPath, fmt.Sprintf("%s/%s.poster.JPG", asset.AlbumGUID, asset.GUID))
 	asset.Path = fmt.Sprintf("/file/%s/%s/%s", asset.AlbumGUID, asset.GUID, asset.Filename)
 	asset.ThumbnailPath = asset.Path // this will be default for images, videos will overwrite
 	asset.Filetype = strings.ToLower(filepath.Ext(asset.Filename))
