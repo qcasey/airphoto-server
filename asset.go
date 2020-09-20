@@ -86,7 +86,7 @@ func (asset *Asset) parseFile(obj *[]byte) {
 
 	if !fileExists(asset.LocalPath) {
 		if asset.Filetype == ".mp4" || asset.Filetype == ".mov" {
-			log.Warn().Msgf("Asset %s does not exist at %s, skipping file parsing", asset.GUID, asset.LocalPath)
+			//log.Warn().Msgf("Asset %s does not exist at %s, skipping file parsing", asset.GUID, asset.LocalPath)
 		}
 		return
 	}
