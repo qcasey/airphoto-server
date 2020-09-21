@@ -1,4 +1,4 @@
-package main
+package comment
 
 import (
 	"database/sql"
@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/qcasey/airphoto/internal/database"
+	"github.com/qcasey/nskeyedarchiver"
 	"github.com/qcasey/plist"
 	"github.com/rs/zerolog/log"
 )
@@ -23,6 +25,8 @@ type Comment struct {
 	Content   string    `json:"Content"`
 }
 
+var determinedName string
+
 func parseCommentRows(rows *sql.Rows) map[string]*Comment {
 	out := make(map[string]*Comment, 0)
 	var (
@@ -36,20 +40,19 @@ func parseCommentRows(rows *sql.Rows) map[string]*Comment {
 
 		rows.Scan(&c.AssetGUID, &c.GUID, &tempTime, &c.IsCaption, &c.IsMine, &tempObj)
 
-		if c.Date, err = ParseAppleTimestamp(tempTime); err != nil {
+		if c.Date, err = nskeyedarchiver.NSDateToTime(tempTime); err != nil {
 			log.Error().Msg(err.Error())
 			continue
 		}
-		if err := c.parseCommentObj(&tempObj); err != nil {
-			log.Error().Msg(err.Error())
-			continue
-		}
+		/*
+			if err := c.parseCommentObj(&tempObj); err != nil {
+				log.Error().Msg(err.Error())
+				continue
+			}*/
 
 		// Set the user's name based on the IsMine bool
-		if server.DeterminedName == "" && c.IsMine && c.Name != "" {
-			server.lock.Lock()
-			server.DeterminedName = c.Name
-			server.lock.Unlock()
+		if determinedName == "" && c.IsMine && c.Name != "" {
+			determinedName = c.Name
 		}
 
 		// Append to output list
@@ -59,7 +62,7 @@ func parseCommentRows(rows *sql.Rows) map[string]*Comment {
 	return out
 }
 
-func (comment *Comment) parseCommentObj(obj *[]byte) error {
+func (comment *Comment) ParseCommentObj(obj *[]byte) error {
 	if comment == nil || obj == nil {
 		return fmt.Errorf("Empty comment")
 	}
@@ -84,7 +87,7 @@ func (comment *Comment) parseCommentObj(obj *[]byte) error {
 	return nil
 }
 
-func getComments(assetGUID string, oldComments *map[string]*Comment) map[string]*Comment {
+func GetComments(assetGUID string, oldComments *map[string]*Comment) map[string]*Comment {
 	var excludeSlice strings.Builder
 	if oldComments != nil && len(*oldComments) > 0 {
 		log.Info().Msgf("Searching for refreshed comments, excluding %d existing ones", len(*oldComments))
@@ -102,7 +105,7 @@ func getComments(assetGUID string, oldComments *map[string]*Comment) map[string]
 
 	sql := fmt.Sprintf("SELECT AssetCollections.GUID, Comments.GUID, Comments.timestamp, Comments.isCaption, Comments.isMine, Comments.obj FROM Comments LEFT OUTER JOIN AssetCollections on AssetCollections.GUID = Comments.assetCollectionGUID WHERE AssetCollections.GUID = '%s'%s ORDER BY timestamp DESC", assetGUID, excludeSlice.String())
 	//log.Info().Msg(sql)
-	rows, err := server.DB.Query(sql)
+	rows, err := database.Query(sql)
 	if err != nil {
 		log.Error().Msg(err.Error())
 		return nil
