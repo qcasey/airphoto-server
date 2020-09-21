@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/qcasey/MDroid-Core/format/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -40,7 +39,7 @@ func startRouter() {
 	// Finally, welcome and meta routes
 	//
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		res := response.JSONResponse{Output: "OK", OK: true}
+		writer.WriteHeader(http.StatusOK)
 		res.Write(&w, r)
 	}).Methods("GET")
 

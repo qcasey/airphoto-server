@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/qcasey/MDroid-Core/format/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -122,11 +121,11 @@ func handleDeviceTokenPost(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	if params["token"] == "" {
 		log.Warn().Msgf("Recieved an invalid token: %s", params["token"])
-		response.WriteNew(&w, r, response.JSONResponse{OK: false, Output: "Invalid token"})
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if stringInSlice(params["token"], server.DeviceTokens) {
-		response.WriteNew(&w, r, response.JSONResponse{OK: true, Output: "Token already exists, skipping"})
+		writer.WriteHeader(http.StatusNotModified)
 		return
 	}
 
@@ -134,5 +133,5 @@ func handleDeviceTokenPost(w http.ResponseWriter, r *http.Request) {
 
 	server.DeviceTokens = append(server.DeviceTokens, params["token"])
 	exportDeviceTokens("./tokens", server.DeviceTokens)
-	response.WriteNew(&w, r, response.JSONResponse{OK: true, Output: "OK"})
+	writer.WriteHeader(http.StatusOK)
 }

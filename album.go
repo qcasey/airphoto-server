@@ -2,13 +2,13 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sort"
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/qcasey/MDroid-Core/format/response"
 	"github.com/rs/zerolog/log"
 )
 
@@ -42,8 +42,8 @@ func (a albumSlice) Less(i, j int) bool {
 func handleAlbumGetAll(w http.ResponseWriter, r *http.Request) {
 	server.lock.RLock()
 	defer server.lock.RUnlock()
-
-	response.WriteNew(&w, r, response.JSONResponse{OK: true, Output: server.Albums})
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(server.Albums)
 }
 
 func handleAlbumGetList(w http.ResponseWriter, r *http.Request) {
@@ -57,8 +57,8 @@ func handleAlbumGetList(w http.ResponseWriter, r *http.Request) {
 		assetlessAlbums = append(assetlessAlbums, a2)
 	}
 	sort.Sort(assetlessAlbums)
-
-	response.WriteNew(&w, r, response.JSONResponse{OK: true, Output: assetlessAlbums})
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(server.Albums)
 }
 
 func handleAlbumGet(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +66,7 @@ func handleAlbumGet(w http.ResponseWriter, r *http.Request) {
 
 	album, ok := server.Albums[params["guid"]]
 	if !ok {
-		response.WriteNew(&w, r, response.JSONResponse{OK: false, Output: "Not found"})
+		writer.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -76,8 +76,8 @@ func handleAlbumGet(w http.ResponseWriter, r *http.Request) {
 		assets = append(assets, *asset)
 	}
 	sort.Sort(assets)
-
-	response.WriteNew(&w, r, response.JSONResponse{OK: true, Output: assets})
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(assets)
 }
 
 func parseAlbumRows(rows *sql.Rows) []*Album {
