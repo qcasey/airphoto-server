@@ -162,6 +162,13 @@ func GetAssets(albumGUID string, isRefresh bool) (map[string]*Asset, *Asset) {
 			if !assetExists {
 				var err error
 
+				plistData, err := nskeyedarchiver.Unarchive(embeddedPlist)
+				if err != nil {
+					fmt.Println("Error decoding plist:", err)
+					return
+				}
+				log.Info().Msgf("Plist Data: %v\n", plistData[0])
+
 				// Parse author
 				if asset.Author, err = plist.GetValue(&embeddedPlist, "fullName"); err != nil {
 					log.Error().Msg(err.Error())
