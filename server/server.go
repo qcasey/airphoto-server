@@ -48,7 +48,7 @@ func New() (*Server, error) {
 	return r, nil
 }
 
-func (s *Server) Start(binder func(s Server, r *mux.Router)) {
+func (s *Server) Start(binder func(s *Server, r *mux.Router)) {
 	err := database.Open()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Could not setup database")
@@ -56,7 +56,7 @@ func (s *Server) Start(binder func(s Server, r *mux.Router)) {
 
 	s.router = mux.NewRouter().StrictSlash(true)
 	go s.infiniteReader(time.Duration(s.Viper.GetInt("recheckInterval")) * time.Millisecond)
-	binder(*s, s.router)
+	binder(s, s.router)
 
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", s.Viper.GetInt("port")))
 	if err != nil {

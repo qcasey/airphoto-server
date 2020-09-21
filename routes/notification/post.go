@@ -34,7 +34,7 @@ func exportDeviceTokens(path string, lines []string) error {
 	return w.Flush()
 }
 
-func Post(srv server.Server) http.HandlerFunc {
+func Post(srv *server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		srv.Mutex.Lock()
 		defer srv.Mutex.Unlock()

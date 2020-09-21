@@ -9,7 +9,7 @@ import (
 	"github.com/qcasey/airphoto/server"
 )
 
-func bindRoutes(srv server.Server, r *mux.Router) {
+func bindRoutes(srv *server.Server, r *mux.Router) {
 	r.HandleFunc("/albums/{guid}", album.Get(srv)).Methods(http.MethodGet)
 	r.HandleFunc("/albums", album.GetList(srv)).Methods(http.MethodGet)
 	r.HandleFunc("/albums/all", album.GetAll(srv)).Methods(http.MethodGet)

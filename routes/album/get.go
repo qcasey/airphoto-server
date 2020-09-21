@@ -11,7 +11,7 @@ import (
 	"github.com/qcasey/airphoto/server"
 )
 
-func Get(srv server.Server) http.HandlerFunc {
+func Get(srv *server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		srv.Mutex.RLock()
 		defer srv.Mutex.RUnlock()
@@ -35,7 +35,7 @@ func Get(srv server.Server) http.HandlerFunc {
 	}
 }
 
-func GetAll(srv server.Server) http.HandlerFunc {
+func GetAll(srv *server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		srv.Mutex.RLock()
 		defer srv.Mutex.RUnlock()
@@ -44,7 +44,7 @@ func GetAll(srv server.Server) http.HandlerFunc {
 	}
 }
 
-func GetList(srv server.Server) http.HandlerFunc {
+func GetList(srv *server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		srv.Mutex.RLock()
 		defer srv.Mutex.RUnlock()
