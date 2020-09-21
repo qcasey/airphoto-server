@@ -5,6 +5,7 @@ import (
 	"mime"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cheggaaa/pb"
@@ -134,6 +135,7 @@ func GetAssets(albumGUID string, isRefresh bool) (map[string]*Asset, *Asset) {
 	defer rows.Close()
 
 	assetMap := make(map[string]*Asset, 0) // for returning new assets
+	var assetMutex sync.Mutex
 
 	// For program counting
 	start := time.Now()
@@ -179,7 +181,9 @@ func GetAssets(albumGUID string, isRefresh bool) (map[string]*Asset, *Asset) {
 				asset.IsVideo = asset.Filetype == ".mp4" || asset.Filetype == ".mov"
 			}
 
+			assetMutex.Lock()
 			assetMap[asset.GUID] = asset
+			assetMutex.Unlock()
 
 			// Check date of this asset, update most recent
 			if mostRecentAsset == nil || (!asset.IsVideo && asset.SortingDate.After(mostRecentAsset.SortingDate)) {
