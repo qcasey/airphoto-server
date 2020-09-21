@@ -12,6 +12,7 @@ import (
 
 	"github.com/cheggaaa/pb"
 	"github.com/nozzle/throttler"
+	"github.com/qcasey/nskeyedarchiver"
 	"github.com/qcasey/plist"
 	"github.com/rs/zerolog/log"
 )
@@ -169,17 +170,17 @@ func getAssets(albumGUID string, isRefresh bool) (map[GUID]*Asset, *Asset) {
 	for rows.Next() {
 		asset := &Asset{Comments: make(map[string]*Comment, 0)}
 		var (
-			appleTime float64
-			tempObj   []byte
+			appleTime     float64
+			embeddedPlist []byte
 		)
-		rows.Scan(&asset.AlbumGUID, &asset.GUID, &appleTime, &asset.Number, &tempObj)
+		rows.Scan(&asset.AlbumGUID, &asset.GUID, &appleTime, &asset.Number, &embeddedPlist)
 
 		// Parse date before throwing away appleTime
-		if parsedDate, err := ParseAppleTimestamp(appleTime); err == nil {
+		if parsedDate, err := nskeyedarchiver.NSDateToTime(appleTime); err == nil {
 			asset.Date = parsedDate
 		}
 
-		go func(asset *Asset, tempObj []byte) {
+		go func(asset *Asset, embeddedPlist []byte) {
 			newCommentCount += asset.parseComments(isRefresh)
 			assetExists := false
 
@@ -198,7 +199,7 @@ func getAssets(albumGUID string, isRefresh bool) (map[GUID]*Asset, *Asset) {
 			}
 
 			if !assetExists {
-				asset.parseFile(&tempObj)
+				asset.parseFile(&embeddedPlist)
 			}
 
 			// Add to server
@@ -214,7 +215,7 @@ func getAssets(albumGUID string, isRefresh bool) (map[GUID]*Asset, *Asset) {
 			// Mark as done
 			bar.Increment()
 			t.Done(nil)
-		}(asset, tempObj)
+		}(asset, embeddedPlist)
 
 		t.Throttle()
 	}
