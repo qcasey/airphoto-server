@@ -65,7 +65,7 @@ func sendNotification(title string, message string) {
 	}
 	log.Info().Msg(string(jsonStr))
 
-	url := "http://quinncasey.com:8088/api/push"
+	url := "https://notifications.airphoto.app"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
