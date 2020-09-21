@@ -113,13 +113,27 @@ func checkForNotificationsToSend(newAlbums []*album.Album) {
 		}*/
 }
 
+func (srv *Server) pollAlbums() {
+	newAlbums, err := album.GetAlbums(true)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to refresh albums")
+	}
+
+	checkForNotificationsToSend(newAlbums)
+
+	srv.Mutex.Lock()
+	srv.Albums = newAlbums
+	srv.Mutex.Unlock()
+}
+
 func (srv *Server) infiniteReader(interval time.Duration) {
 	for {
 		// Do initial startup
 		if !srv.Started {
 			log.Info().Msg("Building map of assets, this may take a while...")
 
-			album.GetAlbums(false)
+			srv.pollAlbums()
+
 			srv.Started = true
 			database.HasBeenModified() // set modified time
 			continue
@@ -127,16 +141,7 @@ func (srv *Server) infiniteReader(interval time.Duration) {
 
 		if database.HasBeenModified() {
 			log.Info().Msg("DB file has been modified. Refreshing albums...")
-			newAlbums, err := album.GetAlbums(true)
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to refresh albums")
-			}
-
-			checkForNotificationsToSend(newAlbums)
-
-			srv.Mutex.Lock()
-			srv.Albums = newAlbums
-			srv.Mutex.Unlock()
+			srv.pollAlbums()
 		}
 		time.Sleep(interval)
 	}
