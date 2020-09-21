@@ -1,14 +1,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
 	"mime"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -17,7 +14,6 @@ import (
 	"github.com/nozzle/throttler"
 	"github.com/qcasey/plist"
 	"github.com/rs/zerolog/log"
-	ffprobe "gopkg.in/vansante/go-ffprobe.v2"
 )
 
 // Asset corresponds to each row in the 'chat' table, along with a lock for the Messages
@@ -83,47 +79,9 @@ func (asset *Asset) parseFile(obj *[]byte) {
 	asset.ThumbnailPath = asset.Path // this will be default for images, videos will overwrite
 	asset.Filetype = strings.ToLower(filepath.Ext(asset.Filename))
 	asset.MIME = mime.TypeByExtension(asset.Filetype)
-
-	if !fileExists(asset.LocalPath) {
-		if asset.Filetype == ".mp4" || asset.Filetype == ".mov" {
-			//log.Warn().Msgf("Asset %s does not exist at %s, skipping file parsing", asset.GUID, asset.LocalPath)
-		}
-		return
-	}
-
-	if asset.Filetype == ".mp4" || asset.Filetype == ".mov" {
-		ctx, cancelFn := context.WithTimeout(context.Background(), 15*time.Second)
-		defer cancelFn()
-
-		data, err := ffprobe.ProbeURL(ctx, asset.LocalPath)
-		if err != nil {
-			log.Error().Msg(err.Error())
-		}
-		stream := data.FirstVideoStream()
-		asset.Height = stream.Height
-		asset.Width = stream.Width
-		asset.ThumbnailPath = fmt.Sprintf("%s-thumbnail.jpg", asset.Path)
-		asset.IsVideo = true
-
-		// Save thumbnail to file
-		SaveFrame(asset.Width, asset.Height, asset.LocalPath, asset.ThumbnailPath)
-
-	} else {
-		asset.IsVideo = false
-		if reader, err := os.Open(asset.LocalPath); err == nil {
-			defer reader.Close()
-			im, _, err := image.DecodeConfig(reader)
-			if err != nil {
-				log.Error().Msgf("Error when decoding image %s.", asset.Path)
-				log.Error().Msg(err.Error())
-				return
-			}
-			asset.Height = im.Height
-			asset.Width = im.Width
-		} else {
-			log.Error().Msg(err.Error())
-		}
-	}
+	//asset.Height = im.Height
+	//asset.Width = im.Width
+	asset.IsVideo = asset.Filetype == ".mp4" || asset.Filetype == ".mov"
 }
 
 func (asset *Asset) parseComments(isRefresh bool) int {
