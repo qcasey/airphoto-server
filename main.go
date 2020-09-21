@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/qcasey/airphoto/server"
+	"github.com/qcasey/airphoto-server/server"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )

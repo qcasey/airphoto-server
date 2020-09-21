@@ -6,9 +6,9 @@ import (
 	"sort"
 
 	"github.com/gorilla/mux"
-	"github.com/qcasey/airphoto/pkg/album"
-	"github.com/qcasey/airphoto/pkg/asset"
-	"github.com/qcasey/airphoto/server"
+	"github.com/qcasey/airphoto-server/pkg/album"
+	"github.com/qcasey/airphoto-server/pkg/asset"
+	"github.com/qcasey/airphoto-server/server"
 )
 
 func Get(srv *server.Server) http.HandlerFunc {

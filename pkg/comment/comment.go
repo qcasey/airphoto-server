@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qcasey/airphoto/internal/database"
+	"github.com/qcasey/airphoto-server/internal/database"
 	"github.com/qcasey/nskeyedarchiver"
 	"github.com/qcasey/plist"
 	"github.com/rs/zerolog/log"

@@ -12,9 +12,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/gorilla/mux"
-	"github.com/qcasey/airphoto/internal/database"
-	"github.com/qcasey/airphoto/pkg/album"
-	"github.com/qcasey/airphoto/server/config"
+	"github.com/qcasey/airphoto-server/internal/database"
+	"github.com/qcasey/airphoto-server/pkg/album"
+	"github.com/qcasey/airphoto-server/server/config"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )

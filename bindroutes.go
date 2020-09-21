@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/qcasey/airphoto/routes/album"
-	"github.com/qcasey/airphoto/routes/notification"
-	"github.com/qcasey/airphoto/server"
+	"github.com/qcasey/airphoto-server/routes/album"
+	"github.com/qcasey/airphoto-server/routes/notification"
+	"github.com/qcasey/airphoto-server/server"
 )
 
 func bindRoutes(srv *server.Server, r *mux.Router) {

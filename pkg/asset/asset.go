@@ -9,8 +9,8 @@ import (
 
 	"github.com/cheggaaa/pb"
 	"github.com/nozzle/throttler"
-	"github.com/qcasey/airphoto/internal/database"
-	"github.com/qcasey/airphoto/pkg/comment"
+	"github.com/qcasey/airphoto-server/internal/database"
+	"github.com/qcasey/airphoto-server/pkg/comment"
 	"github.com/qcasey/nskeyedarchiver"
 	"github.com/qcasey/plist"
 	"github.com/rs/zerolog/log"

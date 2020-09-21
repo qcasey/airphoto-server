@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/qcasey/airphoto/internal/database"
-	"github.com/qcasey/airphoto/pkg/asset"
+	"github.com/qcasey/airphoto-server/internal/database"
+	"github.com/qcasey/airphoto-server/pkg/asset"
 	"github.com/rs/zerolog/log"
 )
 

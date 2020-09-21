@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/qcasey/airphoto/server"
+	"github.com/qcasey/airphoto-server/server"
 )
 
 func stringInSlice(a string, list []string) bool {
