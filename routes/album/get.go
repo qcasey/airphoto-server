@@ -57,6 +57,6 @@ func GetList(srv *server.Server) http.HandlerFunc {
 		}
 		sort.Sort(assetlessAlbums)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(srv.Albums)
+		json.NewEncoder(w).Encode(assetlessAlbums)
 	}
 }
