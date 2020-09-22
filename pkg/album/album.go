@@ -64,7 +64,7 @@ func GetAlbums(isRefresh bool) ([]*Album, error) {
 
 		var mostRecentAsset *asset.Asset
 		Album.Assets, mostRecentAsset = asset.GetAssets(Album.GUID, isRefresh)
-		Album.LastPhotoDate, Album.CoverPhoto = mostRecentAsset.SortingDate, mostRecentAsset.Path
+		Album.LastPhotoDate, Album.CoverPhoto = mostRecentAsset.SortingDate, mostRecentAsset.Filename
 	}
 
 	log.Info().Msg(fmt.Sprintf("Parsed %d albums.", len(newAlbums)))
