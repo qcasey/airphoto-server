@@ -33,8 +33,8 @@ type Asset struct {
 	LocalPath     string    `json:"LocalPath"`
 	ThumbnailPath string    `json:"ThumbnailPath"`
 	Path          string    `json:"Path"`
-	Width         int       `json:"Width"`
-	Height        int       `json:"Height"`
+	Width         uint64    `json:"Width"`
+	Height        uint64    `json:"Height"`
 	//Date       float64             `json:"Date"`
 	//BatchDate       float64             `json:"BatchDate"`
 	Number float64 `json:"PhotoNumber" mapstructure:"photoNumber"`
@@ -191,23 +191,18 @@ func GetAssets(albumGUID string, isRefresh bool) (map[string]*Asset, *Asset) {
 			}
 
 			// Parse author
-			/*
-				if asset.Author, err = plist.GetValue(&embeddedPlist, "fullName"); err != nil {
-					log.Error().Msg(err.Error())
-				}
-
-				// Parse filename and set path
-				if asset.Filename, err = plist.GetValue(&embeddedPlist, "fileName"); err != nil {
-					log.Error().Msg(err.Error())
-					return
-				}*/
-			asset.Path = fmt.Sprintf("/file/%s/%s/%s", asset.AlbumGUID, asset.GUID, asset.Filename)
-			asset.ThumbnailPath = asset.Path // this will be default for images, videos will overwrite
 			asset.Filetype = strings.ToLower(filepath.Ext(asset.Filename))
 			asset.MIME = mime.TypeByExtension(asset.Filetype)
-			//asset.Height = im.Height
-			//asset.Width = im.Width
 			asset.IsVideo = asset.Filetype == ".mp4" || asset.Filetype == ".mov"
+
+			// Graduate plist asset to main height/width data
+			for _, a := range asset.PlistAssetData {
+				if a.Metadata.MSAssetMetadataAssetType == "derivative" {
+					asset.Height = a.Metadata.MSAssetMetadataPixelHeight
+					asset.Width = a.Metadata.MSAssetMetadataPixelWidth
+					break
+				}
+			}
 
 			parseComments(asset, isRefresh)
 
