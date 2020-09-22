@@ -130,8 +130,6 @@ func (srv *Server) infiniteReader(interval time.Duration) {
 	for {
 		// Do initial startup
 		if !srv.Started {
-			log.Info().Msg("Building map of assets, this may take a while...")
-
 			srv.pollAlbums()
 
 			srv.Started = true
