@@ -19,22 +19,19 @@ import (
 
 // Asset corresponds to each row in the 'chat' table, along with a lock for the Messages
 type Asset struct {
-	GUID          string    `json:"GUID"`
-	AlbumGUID     string    `json:"AlbumGUID"`
-	Date          time.Time `json:"Date" mapstructure:"timestamp"`
-	SortingDate   time.Time `json:"SortingDate"`
-	Author        string    `json:"Author" mapstructure:"fullName"`
-	AuthorID      string    `json:"AuthorID" mapstructure:"personID"`
-	IsMine        bool      `json:"IsMine"`
-	IsVideo       bool      `json:"IsVideo"`
-	Filename      string    `json:"Filename"`
-	Filetype      string    `json:"Filetype"`
-	MIME          string    `json:"MIME"`
-	LocalPath     string    `json:"LocalPath"`
-	ThumbnailPath string    `json:"ThumbnailPath"`
-	Path          string    `json:"Path"`
-	Width         uint64    `json:"Width"`
-	Height        uint64    `json:"Height"`
+	GUID        string    `json:"GUID"`
+	AlbumGUID   string    `json:"AlbumGUID"`
+	Date        time.Time `json:"Date" mapstructure:"timestamp"`
+	SortingDate time.Time `json:"SortingDate"`
+	Author      string    `json:"Author" mapstructure:"fullName"`
+	AuthorID    string    `json:"AuthorID" mapstructure:"personID"`
+	IsMine      bool      `json:"IsMine"`
+	IsVideo     bool      `json:"IsVideo"`
+	Filename    string    `json:"Filename"`
+	Filetype    string    `json:"Filetype"`
+	MIME        string    `json:"MIME"`
+	Width       uint64    `json:"Width"`
+	Height      uint64    `json:"Height"`
 	//Date       float64             `json:"Date"`
 	//BatchDate       float64             `json:"BatchDate"`
 	Number float64 `json:"PhotoNumber" mapstructure:"photoNumber"`
