@@ -190,7 +190,7 @@ func GetAssets(albumGUID string, isRefresh bool) (map[string]*Asset, *Asset) {
 				return
 			}
 
-			// Parse author
+			// Parse metadata
 			asset.Filetype = strings.ToLower(filepath.Ext(asset.Filename))
 			asset.MIME = mime.TypeByExtension(asset.Filetype)
 			asset.IsVideo = asset.Filetype == ".mp4" || asset.Filetype == ".mov"
