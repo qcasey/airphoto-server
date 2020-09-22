@@ -60,7 +60,3 @@ func GetList(srv *server.Server) http.HandlerFunc {
 		json.NewEncoder(w).Encode(srv.Albums)
 	}
 }
-
-func handleAlbumGetList(w http.ResponseWriter, r *http.Request) {
-
-}
