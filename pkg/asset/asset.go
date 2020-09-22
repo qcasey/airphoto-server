@@ -9,37 +9,58 @@ import (
 	"time"
 
 	"github.com/cheggaaa/pb"
+	"github.com/mitchellh/mapstructure"
 	"github.com/nozzle/throttler"
 	"github.com/qcasey/airphoto-server/internal/database"
 	"github.com/qcasey/airphoto-server/pkg/comment"
 	"github.com/qcasey/nskeyedarchiver"
-	"github.com/qcasey/plist"
 	"github.com/rs/zerolog/log"
 )
 
 // Asset corresponds to each row in the 'chat' table, along with a lock for the Messages
 type Asset struct {
-	GUID        string    `json:"GUID"`
-	AlbumGUID   string    `json:"AlbumGUID"`
-	Date        time.Time `json:"Date"`
-	SortingDate time.Time `json:"SortingDate"`
-	Author      string    `json:"Author"`
-	//IsMine      bool      `json:"IsMine"`
-	IsVideo       bool   `json:"IsVideo"`
-	Filename      string `json:"Filename"`
-	Filetype      string `json:"Filetype"`
-	MIME          string `json:"MIME"`
-	LocalPath     string `json:"LocalPath"`
-	ThumbnailPath string `json:"ThumbnailPath"`
-	Path          string `json:"Path"`
-	Width         int    `json:"Width"`
-	Height        int    `json:"Height"`
+	GUID          string    `json:"GUID"`
+	AlbumGUID     string    `json:"AlbumGUID"`
+	Date          time.Time `json:"Date" mapstructure:"timestamp"`
+	SortingDate   time.Time `json:"SortingDate"`
+	Author        string    `json:"Author" mapstructure:"fullName"`
+	AuthorID      string    `json:"AuthorID" mapstructure:"personID"`
+	IsMine        bool      `json:"IsMine"`
+	IsVideo       bool      `json:"IsVideo"`
+	Filename      string    `json:"Filename"`
+	Filetype      string    `json:"Filetype"`
+	MIME          string    `json:"MIME"`
+	LocalPath     string    `json:"LocalPath"`
+	ThumbnailPath string    `json:"ThumbnailPath"`
+	Path          string    `json:"Path"`
+	Width         int       `json:"Width"`
+	Height        int       `json:"Height"`
 	//Date       float64             `json:"Date"`
 	//BatchDate       float64             `json:"BatchDate"`
-	Number float64 `json:"PhotoNumber"`
+	Number float64 `json:"PhotoNumber" mapstructure:"photoNumber"`
 	//LastCommentDate time.Time           `json:"LastCommentDate"`
 	Comments map[string]*comment.Comment `json:"Comments"`
-	//obj             []byte
+
+	PlistAssetData []plistAsset `mapstructure:"assets"`
+	//Other    map[string]interface{}      `mapstructure:",remain"`
+}
+
+// These are for decoding mapstructures of unarchived plists
+type plistAssetMetadata struct {
+	MSAssetMetadataAssetType      string
+	MSAssetMetadataAssetTypeFlags uint64
+	MSAssetMetadataFileSize       uint64
+	MSAssetMetadataPixelHeight    uint64
+	MSAssetMetadataPixelWidth     uint64
+}
+
+type plistAsset struct {
+	GUID                       string
+	AssetCollectionGUID        string
+	AssetDataAvailableOnServer bool
+	FileHash                   []uint8
+	MediaAssetType             uint64
+	Metadata                   plistAssetMetadata
 }
 
 // List for sorting assets
@@ -156,20 +177,21 @@ func GetAssets(albumGUID string, isRefresh bool) (map[string]*Asset, *Asset) {
 		}
 
 		go func(asset *Asset, embeddedPlist []byte) {
-			parseComments(asset, isRefresh)
-			assetExists := false
 
-			if !assetExists {
-				var err error
+			plistData, err := nskeyedarchiver.Unarchive(embeddedPlist)
+			if err != nil {
+				fmt.Println("Error decoding plist:", err)
+				return
+			}
+			plistMap := plistData[0].(map[string]interface{})
+			err = mapstructure.Decode(plistMap, &asset)
+			if err != nil {
+				fmt.Println("Error mapping plist:", err)
+				return
+			}
 
-				plistData, err := nskeyedarchiver.Unarchive(embeddedPlist)
-				if err != nil {
-					fmt.Println("Error decoding plist:", err)
-					return
-				}
-				log.Info().Msgf("Plist Data: %v\n", plistData[0])
-
-				// Parse author
+			// Parse author
+			/*
 				if asset.Author, err = plist.GetValue(&embeddedPlist, "fullName"); err != nil {
 					log.Error().Msg(err.Error())
 				}
@@ -178,15 +200,16 @@ func GetAssets(albumGUID string, isRefresh bool) (map[string]*Asset, *Asset) {
 				if asset.Filename, err = plist.GetValue(&embeddedPlist, "fileName"); err != nil {
 					log.Error().Msg(err.Error())
 					return
-				}
-				asset.Path = fmt.Sprintf("/file/%s/%s/%s", asset.AlbumGUID, asset.GUID, asset.Filename)
-				asset.ThumbnailPath = asset.Path // this will be default for images, videos will overwrite
-				asset.Filetype = strings.ToLower(filepath.Ext(asset.Filename))
-				asset.MIME = mime.TypeByExtension(asset.Filetype)
-				//asset.Height = im.Height
-				//asset.Width = im.Width
-				asset.IsVideo = asset.Filetype == ".mp4" || asset.Filetype == ".mov"
-			}
+				}*/
+			asset.Path = fmt.Sprintf("/file/%s/%s/%s", asset.AlbumGUID, asset.GUID, asset.Filename)
+			asset.ThumbnailPath = asset.Path // this will be default for images, videos will overwrite
+			asset.Filetype = strings.ToLower(filepath.Ext(asset.Filename))
+			asset.MIME = mime.TypeByExtension(asset.Filetype)
+			//asset.Height = im.Height
+			//asset.Width = im.Width
+			asset.IsVideo = asset.Filetype == ".mp4" || asset.Filetype == ".mov"
+
+			parseComments(asset, isRefresh)
 
 			assetMutex.Lock()
 			assetMap[asset.GUID] = asset
